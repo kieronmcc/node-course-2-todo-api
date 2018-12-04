@@ -86,8 +86,35 @@ app.get('/todos/:id', (req, res) => {
 
 });
 
+// Route to remove and indivdual todo
+app.delete('/todos/:id', (req, res) => {
+  //get the Id
+  var id = req.params.id;
+
+  // validate the Id - return 404
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send();
+   }
+
+  // remove tod by Id
+  //success
+    //if no doc send 404
+    //if doc, send doc back with 200
+  //console.error()
+    // 400 with empty body
+
+  Todo.findByIdAndRemove(id).then ((todo) => {
+    if (!todo) {
+      res.status(404).send();
+    }
+
+    res.status(200).send({todo});
+  }).catch((e) => res.status(400).send());
+});
+
+// server application run listenng on configured port
 app.listen(port, () => {
-  console.log(`Started on port 3000 ${port}`);
+  console.log(`Started on port ${port}`);
 });
 
 module.exports = {app};
