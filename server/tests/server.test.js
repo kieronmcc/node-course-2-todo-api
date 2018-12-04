@@ -88,7 +88,7 @@ describe('GET /todos Testsuite', () => {
   });
 });
 
-// Testsuite for getting todo by Id
+// Testsuite for getting todos by Id
 describe('GET /todos/:id Testsuite', () => {
   it('should return todo doc for a valid Id', (done) => {
     request(app)
@@ -114,5 +114,45 @@ describe('GET /todos/:id Testsuite', () => {
       .expect(404)
       .end(done);
   });
+});
+
+// Testsuite for removing todos by Id
+describe('DELETE /todos/:id Testsuite', () => {
+    it('should remove a todo', (done) => {
+      var hexId = todos[1]._id.toHexString();
+
+      request(app)
+        .delete(`/todos/${hexId}`)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.todo._id).toBe(hexId);
+        })
+        .end((err, res) => {
+          if (err) {
+            return done(err);
+          }
+
+          // query database using findById expect toNotExist
+          Todo.findById(hexId).then((todo) => {
+            expect(todo).toNotExist();
+            done();
+          }).catch((e) => done(e));
+        });
+    });
+
+    it('should return 404 if todo not found', (done) => {
+      var newId = new ObjectID().toHexString();
+      request(app)
+        .delete(`/todos/${newId}`)
+        .expect(404)
+        .end(done);
+    });
+
+    it('should return 404 if object Id is invalid', (done) => {
+        request(app)
+          .delete('/todos/123')
+          .expect(404)
+          .end(done);
+    });
 
 });
