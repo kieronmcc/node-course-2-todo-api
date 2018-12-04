@@ -72,7 +72,6 @@ app.get('/todos/:id', (req, res) => {
   var id = req.params.id;
 
   if (!ObjectID.isValid(id)) {
-    console.log('Invalid todo id', id);
     return res.status(404).send();
    }
 
@@ -81,7 +80,7 @@ app.get('/todos/:id', (req, res) => {
        res.status(404).send();
      }
 
-     res.send({todo}); // or res.send({todo: todo}) is equivalent 
+     res.send({todo}); // or res.send({todo: todo}) is equivalent
    }).catch ((e) => res.status(400).send());
 
 });

@@ -1,15 +1,17 @@
 const expect = require('expect');
 const request = require('supertest');
+const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 
 // Fixture data to seed DB
 const todos = [{
+  _id: new ObjectID(),
   text: 'First test todo'
 }, {
+  _id: new ObjectID(),
   text: 'Second test todo'
-
 }];
 
 //This is a text fixture/setup facility in Mocha
@@ -72,7 +74,7 @@ describe('POST /todos Testsuite', () => {
 // End of testsuite (i.e. describe block)
 });
 
-// Testsuite for GET /todos route
+// Testsuite for GET /todos list route
 describe('GET /todos Testsuite', () => {
   it('should get all todos', (done) => {
     //SuperTest request
@@ -84,4 +86,33 @@ describe('GET /todos Testsuite', () => {
       })
       .end(done);
   });
+});
+
+// Testsuite for getting todo by Id
+describe('GET /todos/:id Testsuite', () => {
+  it('should return todo doc for a valid Id', (done) => {
+    request(app)
+      .get(`/todos/${todos[0]._id.toHexString()}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(todos[0].text);
+      })
+      .end(done);
+  });
+
+  it('should return 404 if todo not found', (done) => {
+    var newId = new ObjectID().toHexString();
+    request(app)
+      .get(`/todos/${newId}`)
+      .expect(404)
+      .end(done);
+  });
+
+  it('should return 404 for non-object ids', (done) => {
+    request(app)
+      .get('/todos/123')
+      .expect(404)
+      .end(done);
+  });
+
 });
