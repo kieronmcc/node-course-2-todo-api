@@ -40,6 +40,7 @@ var app = express();
 
 app.use(bodyParser.json());
 
+// Add a todo
 app.post('/todos', (req, res) => {
   var todo = new Todo({
     text: req.body.text
@@ -49,6 +50,19 @@ app.post('/todos', (req, res) => {
   }, (err) => {
     res.status(400).send(err);
   });
+});
+
+// Retrieve all existing todos
+// A js object is sent - send({todos}) as opposed to
+// send(todos) which is just an array
+// Tis object could then be modified so more flexible approach
+app.get('/todos', (req, res) => {
+  // Call the Todo ORM model
+  Todo.find().then ((todos) => {
+    res.send({todos});
+  }, (e) => {
+    res.status(400).send(e);
+  })
 });
 
 app.listen(3000, () => {
