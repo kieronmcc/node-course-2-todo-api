@@ -11,7 +11,9 @@ const todos = [{
   text: 'First test todo'
 }, {
   _id: new ObjectID(),
-  text: 'Second test todo'
+  text: 'Second test todo',
+  completed: true,
+  completedAt: 333
 }];
 
 //This is a text fixture/setup facility in Mocha
@@ -142,6 +144,7 @@ describe('DELETE /todos/:id Testsuite', () => {
 
     it('should return 404 if todo not found', (done) => {
       var newId = new ObjectID().toHexString();
+
       request(app)
         .delete(`/todos/${newId}`)
         .expect(404)
@@ -154,5 +157,70 @@ describe('DELETE /todos/:id Testsuite', () => {
           .expect(404)
           .end(done);
     });
+});
 
+// Testsuite for updating todos
+describe('PATCH /todos/:id', () => {
+  it('should update the todo text', (done) => {
+    var hexId = todos[0]._id.toHexString();
+    var newTxt = 'Text Updated by test';
+    var newTodo = {
+      text: newTxt,
+      completed: true
+    };
+
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send(newTodo)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(newTxt);
+        expect(res.body.todo.completed).toBe(true);
+        expect(res.body.todo.completedAt).toBeA('number');
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+
+        // Check database
+        Todo.findById(hexId).then((todo) => {
+          expect(todo.text).toBe(newTxt);
+          expect(todo.completed).toBe(true);
+          expect(todo.completedAt).toBeA('number');
+          done();
+        }).catch((e) => done(e));
+      });
+
+  });
+
+  it('should clear completedAt when todo is not completed', (done) => {
+    var hexId = todos[1]._id.toHexString();
+    var newTodo = {
+      completed: false
+    };
+
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send(newTodo)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(todos[1].text);
+        expect(res.body.todo.completed).toBe(false);
+        expect(res.body.todo.completedAt).toBe(null); // or toNotExist()
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+
+        // Check database
+        Todo.findById(hexId).then((todo) => {
+          expect(todo.text).toBe(todos[1].text);
+          expect(todo.completed).toBe(false);
+          expect(todo.completedAt).toBe(null);
+          done();
+        }).catch((e) => done(e));
+      });
+    });
 });
