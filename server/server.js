@@ -146,6 +146,24 @@ app.patch('/todos/:id', (req, res) => {
      });
 });
 
+// POST /users - add new user
+app.post('/users', (req, res) => {
+  var body = _.pick(req.body, ['email', 'password']); //pick function from lodash
+  var user = new User(body);
+  console.log('POST Users route');
+
+  user.save().then(() => {
+    console.log('About to generate Token');
+    return user.generateAuthToken();
+  }).then((token) => {
+    console.log('Token = ', token);
+    res.header('x-auth', token).send(user);
+  }).catch((e) => {
+    console.log('Error generated', e);
+    res.status(400).send(e);
+  });
+});
+
 // server application run listenng on configured port
 app.listen(port, () => {
   console.log(`Started on port ${port}`);
