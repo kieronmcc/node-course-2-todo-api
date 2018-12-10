@@ -9,6 +9,7 @@ const bodyParser = require('body-parser');
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
+var {authenticate} = require('./middleware/authenticate');
 
 // ************ Original Examples *********************
 // var newTodo = new Todo({
@@ -162,6 +163,14 @@ app.post('/users', (req, res) => {
     console.log('Error generated', e);
     res.status(400).send(e);
   });
+});
+
+
+
+// In this privatised route the express middleware will
+// call the authenticate method and get back a modifed, authenticated user
+app.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user);
 });
 
 // server application run listenng on configured port

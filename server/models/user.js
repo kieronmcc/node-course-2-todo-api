@@ -60,6 +60,29 @@ UserSchema.methods.generateAuthToken = function () {
   });
 };
 
+// Retrieve user document using authentication token
+UserSchema.statics.findByToken = function (token) {
+  var User = this;
+  var decoded;
+
+  try {
+    decoded = jwt.verify(token, 'abc123');
+    console.log('Decoded token', decoded);
+  } catch (e) {
+    // return new Promise(( resolve, reject) => {
+    //   reject();
+    // });
+    return Promise.reject(); // same as above but simpler
+  }
+
+  return User.findOne({
+    _id: decoded._id,
+    'tokens.token': token,
+    'tokens.access': 'auth'
+  });
+
+};
+
 // make User model - email - required, trimmed, type = string minLength 1
 var User = mongoose.model('User', UserSchema);
 
