@@ -61,6 +61,19 @@ UserSchema.methods.generateAuthToken = function () {
   });
 };
 
+UserSchema.methods.removeToken = function (token) {
+  var user = this;
+  return user.update({
+    // $pull from mongodb
+    $pull: {
+      // tokens: {
+      //   token: token
+      // }
+      tokens: {token} //equivalent because property and variable have same name
+    }
+  })
+};
+
 // Retrieve user document using authentication token
 UserSchema.statics.findByToken = function (token) {
   var User = this;
@@ -122,6 +135,7 @@ UserSchema.statics.findByCredentials = function (email, password) {
     });
   });
 };
+
 
 // make User model - email - required, trimmed, type = string minLength 1
 var User = mongoose.model('User', UserSchema);

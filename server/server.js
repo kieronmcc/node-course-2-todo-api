@@ -184,6 +184,16 @@ app.post('/users/login', (req, res) => {
 
 });
 
+app.delete('/users/me/token', authenticate, (req, res) => {
+  req.user.removeToken(req.token).then (() => {
+    // promise resolved
+    res.status(200).send();
+  }, () => {
+    // promise rejected
+    res.status(400).send();
+  });
+});
+
 
 // server application run listenng on configured port
 app.listen(port, () => {
