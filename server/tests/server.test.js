@@ -145,7 +145,7 @@ describe('DELETE /todos/:id Testsuite', () => {
 });
 
 // Testsuite for updating todos
-describe('PATCH /todos/:id', () => {
+describe('PATCH /todos/:id Testsuite', () => {
   it('should update the todo text', (done) => {
     var hexId = todos[0]._id.toHexString();
     var newTxt = 'Text Updated by test';
@@ -211,7 +211,7 @@ describe('PATCH /todos/:id', () => {
 });
 
 // Testsuite for user authentication
-describe('GET /users/me', () => {
+describe('GET /users/me Testsuite', () => {
   it('should return a user if authenticated', (done) => {
     request(app)
       .get('/users/me')
@@ -237,7 +237,7 @@ describe('GET /users/me', () => {
 });
 
 // Test Suite for user sign up Route
-describe('POST /users', () => {
+describe('POST /users testsuite', () => {
   it('should create a user with valid data', (done) => {
     var email = 'example@example.com';
     var password = '123mnb!';
@@ -306,7 +306,7 @@ describe('POST /users', () => {
 });
 
 // Testsuite for user login routes
-describe('POST /users/login', () => {
+describe('POST /users/login Testsuite', () => {
   it('should login user and return auth token', (done) => {
     request(app)
       .post('/users/login')
@@ -353,6 +353,27 @@ describe('POST /users/login', () => {
           expect(user.tokens.length).toEqual(0);
           done();
         }).catch ((e) => (done(e)));
-      })
+      });
+  });
+});
+
+//Testsuite for logging out user
+// (i.e. deleting their authentication token for session)
+describe('DELETE /users/me/token Testsuite', () => {
+  it('should remove auth token on logout ', (done) => {
+    request(app)
+      .delete('/users/me/token')
+      .set('x-auth', users[0].tokens[0].token)
+      .expect(200)
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+
+        User.findById(users[0]._id).then(user => {
+          expect(user.tokens.length).toEqual(0);
+          done();
+        }).catch ((e) => (done(e)));
+      });
   });
 });
